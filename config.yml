@@ -1,5 +1,5 @@
-token: "xxxxxxxxxxxxxxxx"    # Lichess OAuth2 Token.
-url: "https://lichess.org/"  # Lichess base URL.
+token: "lip_xxxxxxxxxxxxxxxx"    # Lichess OAuth2 Token.
+url: "https://playstrategy.org/"  # Lichess base URL.
 
 engine:                      # Engine settings.
   dir: "./engines/"          # Directory containing the engine. This can be an absolute path or one relative to lichess-bot/.
@@ -88,9 +88,9 @@ correspondence:
     ponder: false            # Ponder in correspondence games the bot is connected to.
 
 challenge:                   # Incoming challenges.
-  concurrency: 1             # Number of games to play simultaneously.
+  concurrency: 2             # Number of games to play simultaneously.
   sort_by: "best"            # Possible values: "best" and "first".
-  accept_bot: false          # Accepts challenges coming from other bots.
+  accept_bot: true          # Accepts challenges coming from other bots.
   only_bot: false            # Accept challenges by bots only.
   max_increment: 180         # Maximum amount of increment to accept a challenge. The max is 180. Set to 0 for no increment.
   min_increment: 0           # Minimum amount of increment to accept a challenge.
@@ -122,7 +122,7 @@ greeting:
     #   {opponent} to insert opponent's name
     #   {me} to insert bot's name
     # Any other words in curly braces will be removed.
-    hello: "Hi! I'm {me}. Good luck! Type !help for a list of commands I can respond to." # Message to send to chat at the start of a game
+    hello: "Hi {opponent}! I'm {me}. Good luck! Type !help for a list of commands I can respond to." # Message to send to chat at the start of a game
     goodbye: "Good game!" # Message to send to chat at the end of a game
 
 # pgn_directory: "game_records" # A directory where PGN-format records of the bot's games are kept
