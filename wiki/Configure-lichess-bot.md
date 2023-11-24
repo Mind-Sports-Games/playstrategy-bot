@@ -1,11 +1,11 @@
-# Configuring lichess-bot
-There are many possible options within `config.yml` for configuring lichess-bot.
+# Configuring playstrategy-bot
+There are many possible options within `config.yml` for configuring playstrategy-bot.
 
 ## Engine options
 - `protocol`: Specify which protocol your engine uses. Choices are
     1. `"uci"` for the [Universal Chess Interface](http://wbec-ridderkerk.nl/html/UCIProtocol.html)
     2. `"xboard"` for the XBoard/WinBoard/[Chess Engine Communication Protocol](https://www.gnu.org/software/xboard/engine-intf.html)
-    3. `"homemade"` if you want to write your own engine in Python within lichess-bot. See [**Create a custom engine**](https://github.com/lichess-bot-devs/lichess-bot/wiki/Create-a-custom-engine).
+    3. `"homemade"` if you want to write your own engine in Python within playstrategy-bot. See [**Create a custom engine**](https://github.com/Mind-Sports-Games/playstrategy-bot/wiki/Create-a-custom-engine).
 - `ponder`: Specify whether your bot will ponder--i.e., think while the bot's opponent is choosing a move.
 - `engine_options`: Command line options to pass to the engine on startup. For example, the `config.yml.default` has the configuration
 ```yml
@@ -49,7 +49,7 @@ Any of the names following `option name` can be listed in `uci_options` in order
     Move Overhead: 100
     Skill Level: 10
 ```
-The exceptions to this are the options `uci_chess960`, `uci_variant`, `multipv`, and `ponder`. These will be handled by lichess-bot after a game starts and should not be listed in `config.yml`. Also, if an option is listed under `uci_options` that is not in the list printed by the engine, it will cause an error when the engine starts because the engine won't understand the option. The word after `type` indicates the expected type of the options: `string` for a text string, `spin` for a numeric value, `check` for a boolean True/False value.
+The exceptions to this are the options `uci_chess960`, `uci_variant`, `multipv`, and `ponder`. These will be handled by playstrategy-bot after a game starts and should not be listed in `config.yml`. Also, if an option is listed under `uci_options` that is not in the list printed by the engine, it will cause an error when the engine starts because the engine won't understand the option. The word after `type` indicates the expected type of the options: `string` for a text string, `spin` for a numeric value, `check` for a boolean True/False value.
 
 One last option is `go_commands`. Beneath this option, arguments to the UCI `go` command can be passed. For example,
 ```yml
@@ -70,10 +70,10 @@ Any of the options can be listed under `xboard_options` in order to configure th
 ```yml
   xboard_options:
     Add Noise: False
-    PGN File: lichess_games.pgn
+    PGN File: playstrategy_games.pgn
     CPU Count: 1
 ```
-The exceptions to this are the options `multipv`, and `ponder`. These will be handled by lichess-bot after a game starts and should not be listed in `config.yml`. Also, if an option is listed under `xboard_options` that is not in the list printed by the engine, it will cause an error when the engine starts because the engine won't know how to handle the option. The word prefixed with a hyphen indicates the expected type of the options: `-string` for a text string, `-spin` for a numeric value, `-check` for a boolean True/False value.
+The exceptions to this are the options `multipv`, and `ponder`. These will be handled by playstrategy-bot after a game starts and should not be listed in `config.yml`. Also, if an option is listed under `xboard_options` that is not in the list printed by the engine, it will cause an error when the engine starts because the engine won't know how to handle the option. The word prefixed with a hyphen indicates the expected type of the options: `-string` for a text string, `-spin` for a numeric value, `-check` for a boolean True/False value.
 
 One last option is `go_commands`. Beneath this option, commands prior to the `go` command can be passed. For example,
 ```yml
@@ -83,7 +83,7 @@ One last option is `go_commands`. Beneath this option, commands prior to the `go
 will precede the `go` command to start thinking with `sd 5`. The other `go_commands` list above for UCI engines (`nodes` and `movetime`) are not valid for XBoard engines and will detrimentally affect their time control.
 
 ## External moves
-- `polyglot`: Tell lichess-bot whether your bot should use an opening book. Multiple books can be specified for each chess variant.
+- `polyglot`: Tell playstrategy-bot whether your bot should use an opening book. Multiple books can be specified for each chess variant.
     - `enabled`: Whether to use the book at all.
     - `book`: A nested list of books. The next indented line should list a chess variant (`standard`, `3check`, `horde`, etc.) followed on succeeding indented lines with paths to the book files. See `config.yml.default` for examples.
     - `min_weight`: The minimum weight or quality a move must have if it is to have a chance of being selected. If a move cannot be found that has at least this weight, no move will be selected.
@@ -91,9 +91,9 @@ will precede the `go` command to start thinking with `sd 5`. The other `go_comma
     - `max_depth`: The maximum number of moves a bot plays before it stops consulting the book. If `max_depth` is 3, then the bot will stop consulting the book after its third move.
 - `online_moves`: This section gives your bot access to various online resources for choosing moves like opening books and endgame tablebases. This can be a supplement or a replacement for chess databases stored on your computer. There are four sections that correspond to four different online databases:
     1. `chessdb_book`: Consults a [Chinese chess position database](https://www.chessdb.cn/), which also hosts a xiangqi database.
-    2. `lichess_cloud_analysis`: Consults [Lichess's own position analysis database](https://lichess.org/api#operation/apiCloudEval).
-    3. `lichess_opening_explorer`: Consults [Lichess's opening explorer](https://lichess.org/api#tag/Opening-Explorer).
-    4. `online_egtb`: Consults either the online Syzygy 7-piece endgame tablebase [hosted by Lichess](https://lichess.org/blog/W3WeMyQAACQAdfAL/7-piece-syzygy-tablebases-are-complete) or the chessdb listed above.
+    2. `playstrategy_cloud_analysis`: Consults [PlayStrategy's own position analysis database](https://playstrategy.org/api#operation/apiCloudEval).
+    3. `playstrategy_opening_explorer`: Consults [PlayStrategy's opening explorer](https://playstrategy.org/api#tag/Opening-Explorer).
+    4. `online_egtb`: Consults either the online Syzygy 7-piece endgame tablebase [hosted by PlayStrategy](https://playstrategy.org/blog/W3WeMyQAACQAdfAL/7-piece-syzygy-tablebases-are-complete) or the chessdb listed above.
     - `max_out_of_book_moves`: Stop using online opening books after they don't have a move for `max_out_of_book_moves` positions. Doesn't apply to the online endgame tablebases.
     - `max_retries`: The maximum amount of retries when getting an online move.
     - `max_depth`: The maximum number of moves a bot can make in the opening before it stops consulting the online opening books. If `max_depth` is 5, then the bot will stop consulting the online books after its fifth move.
@@ -103,22 +103,22 @@ will precede the `go` command to start thinking with `sd 5`. The other `go_comma
         - `move_quality`: Choice of `"all"` (`chessdb_book` only), `"good"` (all except `online_egtb`), `"best"`, or `"suggest"` (`online_egtb` only).
             - `all`: Choose a random move from all legal moves.
             - `best`: Choose only the highest scoring move.
-            - `good`: Choose randomly from the top moves. In `lichess_cloud_analysis`, the top moves list is controlled by `max_score_difference`. In `chessdb_book`, the top list is controlled by the online source.
+            - `good`: Choose randomly from the top moves. In `playstrategy_cloud_analysis`, the top moves list is controlled by `max_score_difference`. In `chessdb_book`, the top list is controlled by the online source.
             - `suggest`: Let the engine choose between the top moves. The top moves are the all the moves that have the best WDL. Can't be used with XBoard engines.
-    - Configurations only in `chessdb_book` and `lichess_cloud_analysis`:
+    - Configurations only in `chessdb_book` and `playstrategy_cloud_analysis`:
         - `min_depth`: The minimum search depth for a move evaluation for a database move to be accepted.
-    - Configurations only in `lichess_cloud_analysis`:
+    - Configurations only in `playstrategy_cloud_analysis`:
         - `max_score_difference`: When `move_quality` is set to `"good"`, this option specifies the maximum difference between the top scoring move and any other move that will make up the set from which a move will be chosen randomly. If this option is set to 25 and the top move in a position has a score of 100, no move with a score of less than 75 will be returned.
         - `min_knodes`: The minimum number of kilonodes to search. The minimum number of nodes to search is this value times 1000.
-    - Configurations only in `lichess_opening_explorer`:
-        - `source`: One of `lichess`, `masters`, or `player`. Whether to use move statistics from masters, lichess players, or a specific player.
+    - Configurations only in `playstrategy_opening_explorer`:
+        - `source`: One of `playstrategy`, `masters`, or `player`. Whether to use move statistics from masters, playstrategy players, or a specific player.
         - `player_name`: Used only when `source` is `player`. The username of the player to use for move statistics.
         - `sort`: One of `winrate` or `games_played`. Whether to choose the best move according to the winrate or the games played.
         - `min_games`: The minimum number of times a move must have been played to be considered.
     - Configurations only in `online_egtb`:
         - `max_pieces`: The maximum number of pieces in the current board for which the tablebase will be consulted.
-        - `source`: One of `chessdb` or `lichess`. Lichess also has tablebases for atomic and antichess while chessdb only has those for standard.
-- `lichess_bot_tbs`: This section gives your bot access to various resources for choosing moves like syzygy and gaviota endgame tablebases. There are two sections that correspond to two different endgame tablebases:
+        - `source`: One of `chessdb` or `playstrategy`. PlayStrategy also has tablebases for atomic and antichess while chessdb only has those for standard.
+- `playstrategy_bot_tbs`: This section gives your bot access to various resources for choosing moves like syzygy and gaviota endgame tablebases. There are two sections that correspond to two different endgame tablebases:
     1. `syzygy`: Get moves from syzygy tablebases. `.*tbw` have to be always provided. Syzygy TBs are generally smaller that gaviota TBs.
     2. `gaviota`: Get moves from gaviota tablebases.
     - Configurations common to all:
@@ -192,7 +192,7 @@ will precede the `go` command to start thinking with `sd 5`. The other `go_comma
   - `max_recent_bot_challenges`: Maximum number of recent challenges that can be accepted from the same bot
 
 ## Greeting
-- `greeting`: Send messages via chat to the bot's opponent. The string `{me}` will be replaced by the bot's lichess account name. The string `{opponent}` will be replaced by the opponent's lichess account name. Any other word between curly brackets will be removed. If you want to put a curly bracket in the message, use two: `{{` or `}}`.
+- `greeting`: Send messages via chat to the bot's opponent. The string `{me}` will be replaced by the bot's playstrategy account name. The string `{opponent}` will be replaced by the opponent's playstrategy account name. Any other word between curly brackets will be removed. If you want to put a curly bracket in the message, use two: `{{` or `}}`.
   - `hello`: Message to send to the opponent when the bot makes its first move.
   - `goodbye`: Message to send to the opponent once the game is over.
   - `hello_spectators`: Message to send to the spectators when the bot makes its first move.
@@ -208,11 +208,11 @@ will precede the `go` command to start thinking with `sd 5`. The other `go_comma
 ## Other options
 - `abort_time`: How many seconds to wait before aborting a game due to opponent inaction. This only applies during the first six moves of the game.
 - `fake_think_time`: Artificially slow down the engine to simulate a person thinking about a move. The amount of thinking time decreases as the game goes on.
-- `rate_limiting_delay`: For extremely fast games, the lichess.org servers may respond with an error if too many moves are played too quickly. This option avoids this problem by pausing for a specified number of milliseconds after submitting a move before making the next move.
+- `rate_limiting_delay`: For extremely fast games, the playstrategy.org servers may respond with an error if too many moves are played too quickly. This option avoids this problem by pausing for a specified number of milliseconds after submitting a move before making the next move.
 - `move_overhead`: To prevent losing on time due to network lag, subtract this many milliseconds from the time to think on each move.
 - `pgn_directory`: Write a record of every game played in PGN format to files in this directory. Each bot move will be annotated with the bot's calculated score and principal variation. The score is written with a tag of the form `[%eval s,d]`, where `s` is the score in pawns (positive means white has the advantage), and `d` is the depth of the search.
 - `pgn_file_grouping`: Determine how games are written to files. There are three options:
-    - `game`: Every game record is written to a different file in the `pgn_directory`. The file name is `{White name} vs. {Black name} - {lichess game ID}.pgn`.
+    - `game`: Every game record is written to a different file in the `pgn_directory`. The file name is `{White name} vs. {Black name} - {playstrategy game ID}.pgn`.
     - `opponent`: Game records are written to files named according to the bot's opponent. The file name is `{Bot name} games vs. {Opponent name}.pgn`.
     - `all`: All games are written to the same file. The file name is `{Bot name} games.pgn`.
 ```yml
@@ -228,18 +228,18 @@ will precede the `go` command to start thinking with `sd 5`. The other `go_comma
   - `challenge_initial_time`: A list of initial times (in seconds and to be chosen at random) for the challenges.
   - `challenge_increment`: A list of increments (in seconds and to be chosen at random) for the challenges.
   - `challenge_days`: A list of number of days for a correspondence challenge (to be chosen at random).
-  - `opponent_min_rating`: The minimum rating of the opponent bot. The minimum rating in lichess is 600.
-  - `opponent_max_rating`: The maximum rating of the opponent bot. The maximum rating in lichess is 4000.
+  - `opponent_min_rating`: The minimum rating of the opponent bot. The minimum rating in playstrategy is 600.
+  - `opponent_max_rating`: The maximum rating of the opponent bot. The maximum rating in playstrategy is 4000.
   - `opponent_rating_difference`: The maximum difference between the bot's rating and the opponent bot's rating.
   - `rating_preference`: Whether the bot should prefer challenging high or low rated players, or have no preference.
-  - `opponent_allow_tos_violation`: Whether to challenge bots that violated Lichess Terms of Service. Note that even rated games against them will not affect ratings.
+  - `opponent_allow_tos_violation`: Whether to challenge bots that violated PlayStrategy Terms of Service. Note that even rated games against them will not affect ratings.
   - `challenge_mode`: Possible options are `casual`, `rated` and `random`.
   - `challenge_filter`: Whether and how to prevent challenging a bot after that bot declines a challenge. Options are `none`, `coarse`, and `fine`.
     - `none` does not prevent challenging a bot that declined a challenge.
     - `coarse` will prevent challenging a bot to any type of game after it declines one challenge.
     - `fine` will prevent challenging a bot to the same kind of game that was declined.
 
-    The `challenge_filter` option can be useful if your matchmaking settings result in a lot of declined challenges. The bots that accept challenges will be challenged more often than those that have declined. The filter will remain until lichess-bot quits or the connection with lichess.org is reset.
+    The `challenge_filter` option can be useful if your matchmaking settings result in a lot of declined challenges. The bots that accept challenges will be challenged more often than those that have declined. The filter will remain until playstrategy-bot quits or the connection with playstrategy.org is reset.
   - `block_list`: An indented list of usernames of bots that will not be challenged. If this option is not present, then the list is considered empty.
   - `overrides`: Create variations on the matchmaking settings above for more specific circumstances. If there are any subsections under `overrides`, the settings below that will override the settings in the matchmaking section. Any settings that do not appear will be taken from the settings above. <br/> <br/>
   The overrides section must have the following:
@@ -289,6 +289,6 @@ matchmaking:
       challenge_mode: casual
 ```
 
-**Next step**: [Run lichess-bot](https://github.com/lichess-bot-devs/lichess-bot/wiki/How-to-Run-lichess%E2%80%90bot)
+**Next step**: [Run playstrategy-bot](https://github.com/Mind-Sports-Games/playstrategy-bot/wiki/How-to-Run-playstrategy%E2%80%90bot)
 
-**Previous step**: [Setup the engine](https://github.com/lichess-bot-devs/lichess-bot/wiki/Setup-the-engine)
+**Previous step**: [Setup the engine](https://github.com/Mind-Sports-Games/playstrategy-bot/wiki/Setup-the-engine)

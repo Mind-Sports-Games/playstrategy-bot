@@ -1,4 +1,4 @@
-"""Imitate `lichess.py`. Used in tests."""
+"""Imitate `playstrategy.py`. Used in tests."""
 import time
 import chess
 import chess.engine
@@ -25,14 +25,14 @@ def is_final(error: Any) -> bool:
 
 
 class GameStream:
-    """Imitate lichess.org's GameStream. Used in tests."""
+    """Imitate playstrategy.org's GameStream. Used in tests."""
 
     def __init__(self) -> None:
         """Initialize `self.moves_sent` to an empty string. It stores the moves that we have already sent."""
         self.moves_sent = ""
 
     def iter_lines(self) -> Generator[bytes, None, None]:
-        """Send the game events to lichess-bot."""
+        """Send the game events to playstrategy-bot."""
         yield json.dumps(
             {"id": "zzzzzzzz",
              "variant": {"key": "standard",
@@ -101,14 +101,14 @@ class GameStream:
 
 
 class EventStream:
-    """Imitate lichess.org's EventStream. Used in tests."""
+    """Imitate playstrategy.org's EventStream. Used in tests."""
 
     def __init__(self, sent_game: bool = False) -> None:
         """:param sent_game: If we have already sent the `gameStart` event, so we don't send it again."""
         self.sent_game = sent_game
 
     def iter_lines(self) -> Generator[bytes, None, None]:
-        """Send the events to lichess-bot."""
+        """Send the events to playstrategy-bot."""
         if self.sent_game:
             yield b''
             time.sleep(1)
@@ -121,9 +121,9 @@ class EventStream:
                                      "board": True}}}).encode("utf-8")
 
 
-# Docs: https://lichess.org/api.
-class Lichess:
-    """Imitate communication with lichess.org."""
+# Docs: https://playstrategy.org/api.
+class PlayStrategy:
+    """Imitate communication with playstrategy.org."""
 
     def __init__(self, token: str, url: str, version: str) -> None:
         """Has the same parameters as `lichess.Lichess` to be able to be used in its placed without any modification."""
@@ -173,12 +173,12 @@ class Lichess:
         return
 
     def get_profile(self) -> dict[str, Union[str, bool, dict[str, str]]]:
-        """Return a simple profile for the bot that lichess-bot uses when testing."""
+        """Return a simple profile for the bot that playstrategy-bot uses when testing."""
         return {"id": "b",
                 "username": "b",
                 "online": True,
                 "title": "BOT",
-                "url": "https://lichess.org/@/b",
+                "url": "https://playstrategy.org/@/b",
                 "followable": True,
                 "following": False,
                 "blocking": False,

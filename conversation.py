@@ -1,4 +1,4 @@
-"""Allows lichess-bot to send messages to the chat."""
+"""Allows playstrategy-bot to send messages to the chat."""
 from __future__ import annotations
 import logging
 import model
@@ -17,12 +17,12 @@ class Conversation:
     def __init__(self, game: model.Game, engine: EngineWrapper, li: Lichess, version: str,
                  challenge_queue: MULTIPROCESSING_LIST_TYPE) -> None:
         """
-        Communication between lichess-bot and the game chats.
+        Communication between playstrategy-bot and the game chats.
 
         :param game: The game that the bot will send messages to.
         :param engine: The engine playing the game.
-        :param li: A class that is used for communication with lichess.
-        :param version: The lichess-bot version.
+        :param li: A class that is used for communication with playstrategy.
+        :param version: The playstrategy-bot version.
         :param challenge_queue: The active challenges the bot has.
         """
         self.game = game
@@ -58,9 +58,9 @@ class Conversation:
             self.send_reply(line, "Waiting 60 seconds...")
         elif cmd == "name":
             name = self.game.me.name
-            self.send_reply(line, f"{name} running {self.engine.name()} (lichess-bot v{self.version})")
+            self.send_reply(line, f"{name} running {self.engine.name()} (playstrategy-bot v{self.version})")
         elif cmd == "howto":
-            self.send_reply(line, "How to run: Check out 'Lichess Bot API'")
+            self.send_reply(line, "How to run: Check out 'PlayStrategy Bot API'")
         elif cmd == "eval" and (from_self or line.room == "spectator"):
             stats = self.engine.get_stats(for_chat=True)
             self.send_reply(line, ", ".join(stats))

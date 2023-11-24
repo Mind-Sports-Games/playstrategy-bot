@@ -65,17 +65,17 @@ def backoff_handler(details: Any) -> None:
     logger.debug(f"Exception: {traceback.format_exc()}")
 
 
-# Docs: https://lichess.org/api.
-class Lichess:
-    """Communication with lichess.org (and chessdb.cn for getting moves)."""
+# Docs: https://playstrategy.org/api.
+class PlayStrategy:
+    """Communication with playstrategy.org (and chessdb.cn for getting moves)."""
 
     def __init__(self, token: str, url: str, version: str, logging_level: int, max_retries: int) -> None:
         """
-        Communication with lichess.org (and chessdb.cn for getting moves).
+        Communication with playstrategy.org (and chessdb.cn for getting moves).
 
         :param token: The bot's token.
-        :param url: The base url (lichess.org).
-        :param version: The lichess-bot version running.
+        :param url: The base url (playstrategy.org).
+        :param version: The playstrategy-bot version running.
         :param logging_level: The logging level (logging.INFO or logging.DEBUG).
         :param max_retries: The maximum amount of retries for online moves (e.g. chessdb's opening book).
         """
@@ -92,11 +92,11 @@ class Lichess:
         self.max_retries = max_retries
         self.rate_limit_timers: defaultdict[str, Timer] = defaultdict(Timer)
 
-        # Confirm that the OAuth token has the proper permission to play on lichess
+        # Confirm that the OAuth token has the proper permission to play on playstrategy
         token_info = self.api_post("token_test", data=token)[token]
 
         if not token_info:
-            raise RuntimeError("Token in config file is not recognized by lichess. "
+            raise RuntimeError("Token in config file is not recognized by playstrategy. "
                                "Please check that it was copied correctly into your configuration file.")
 
         scopes = token_info["scopes"]
@@ -117,14 +117,14 @@ class Lichess:
                 params: Optional[dict[str, str]] = None,
                 stream: bool = False, timeout: int = 2) -> requests.Response:
         """
-        Send a GET to lichess.org.
+        Send a GET to playstrategy.org.
 
         :param endpoint_name: The name of the endpoint.
         :param template_args: The values that go in the url (e.g. the challenge id if `endpoint_name` is `accept`).
-        :param params: Parameters sent to lichess.org.
-        :param stream: Whether the data returned from lichess.org should be streamed.
+        :param params: Parameters sent to playstrategy.org.
+        :param stream: Whether the data returned from playstrategy.org should be streamed.
         :param timeout: The amount of time in seconds to wait for a response.
-        :return: lichess.org's response.
+        :return: playstrategy.org's response.
         """
         logging.getLogger("backoff").setLevel(self.logging_level)
         path_template = self.get_path_template(endpoint_name)
@@ -142,12 +142,12 @@ class Lichess:
     def api_get_json(self, endpoint_name: str, *template_args: str,
                      params: Optional[dict[str, str]] = None) -> JSON_REPLY_TYPE:
         """
-        Send a GET to the lichess.org endpoints that return a JSON.
+        Send a GET to the playstrategy.org endpoints that return a JSON.
 
         :param endpoint_name: The name of the endpoint.
         :param template_args: The values that go in the url (e.g. the challenge id if `endpoint_name` is `accept`).
-        :param params: Parameters sent to lichess.org.
-        :return: lichess.org's response in a dict.
+        :param params: Parameters sent to playstrategy.org.
+        :return: playstrategy.org's response in a dict.
         """
         response = self.api_get(endpoint_name, *template_args, params=params)
         json_response: JSON_REPLY_TYPE = response.json()
@@ -156,12 +156,12 @@ class Lichess:
     def api_get_list(self, endpoint_name: str, *template_args: str,
                      params: Optional[dict[str, str]] = None) -> list[JSON_REPLY_TYPE]:
         """
-        Send a GET to the lichess.org endpoints that return a list containing JSON.
+        Send a GET to the playstrategy.org endpoints that return a list containing JSON.
 
         :param endpoint_name: The name of the endpoint.
         :param template_args: The values that go in the url (e.g. the challenge id if `endpoint_name` is `accept`).
-        :param params: Parameters sent to lichess.org.
-        :return: lichess.org's response in a list of dicts.
+        :param params: Parameters sent to playstrategy.org.
+        :return: playstrategy.org's response in a list of dicts.
         """
         response = self.api_get(endpoint_name, *template_args, params=params)
         json_response: list[JSON_REPLY_TYPE] = response.json()
@@ -170,12 +170,12 @@ class Lichess:
     def api_get_raw(self, endpoint_name: str, *template_args: str,
                     params: Optional[dict[str, str]] = None, ) -> str:
         """
-        Send a GET to lichess.org that returns plain text (UTF-8).
+        Send a GET to playstrategy.org that returns plain text (UTF-8).
 
         :param endpoint_name: The name of the endpoint.
         :param template_args: The values that go in the url (e.g. the challenge id if `endpoint_name` is `accept`).
-        :param params: Parameters sent to lichess.org.
-        :return: The text of lichess.org's response.
+        :param params: Parameters sent to playstrategy.org.
+        :return: The text of playstrategy.org's response.
         """
         response = self.api_get(endpoint_name, *template_args, params=params)
         return response.text
@@ -197,16 +197,16 @@ class Lichess:
                  payload: Optional[REQUESTS_PAYLOAD_TYPE] = None,
                  raise_for_status: bool = True) -> JSON_REPLY_TYPE:
         """
-        Send a POST to lichess.org.
+        Send a POST to playstrategy.org.
 
         :param endpoint_name: The name of the endpoint.
         :param template_args: The values that go in the url (e.g. the challenge id if `endpoint_name` is `accept`).
-        :param data: Data sent to lichess.org.
+        :param data: Data sent to playstrategy.org.
         :param headers: The headers for the request.
-        :param params: Parameters sent to lichess.org.
-        :param payload: Payload sent to lichess.org.
+        :param params: Parameters sent to playstrategy.org.
+        :param payload: Payload sent to playstrategy.org.
         :param raise_for_status: Whether to raise an exception if the response contains an error code.
-        :return: lichess.org's response in a dict.
+        :return: playstrategy.org's response in a dict.
         """
         logging.getLogger("backoff").setLevel(self.logging_level)
         path_template = self.get_path_template(endpoint_name)
@@ -331,8 +331,8 @@ class Lichess:
         self.api_post("resign", game_id)
 
     def set_user_agent(self, username: str) -> None:
-        """Set the user agent for communication with lichess.org."""
-        self.header.update({"User-Agent": f"lichess-bot/{self.version} user:{username}"})
+        """Set the user agent for communication with playstrategy.org."""
+        self.header.update({"User-Agent": f"playstrategy-bot/{self.version} user:{username}"})
         self.session.headers.update(self.header)
 
     def get_game_pgn(self, game_id: str) -> str:
@@ -360,7 +360,7 @@ class Lichess:
         return self.api_post("cancel", challenge_id, raise_for_status=False)
 
     def online_book_get(self, path: str, params: Optional[dict[str, Any]] = None, stream: bool = False) -> JSON_REPLY_TYPE:
-        """Get an external move from online sources (chessdb or lichess.org)."""
+        """Get an external move from online sources (chessdb or playstrategy.org)."""
         @backoff.on_exception(backoff.constant,
                               (RemoteDisconnected, ConnectionError, HTTPError, ReadTimeout),
                               max_time=60,
@@ -376,7 +376,7 @@ class Lichess:
         return online_book_get()
 
     def is_online(self, user_id: str) -> bool:
-        """Check if lichess.org thinks the bot is online or not."""
+        """Check if playstrategy.org thinks the bot is online or not."""
         user = self.api_get_list("status", params={"ids": user_id})
         return bool(user and user[0].get("online"))
 

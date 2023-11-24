@@ -79,7 +79,7 @@ class Challenge:
 
     def decline_due_to(self, requirement_met: bool, decline_reason: str) -> str:
         """
-        Get the reason lichess-bot declined an incoming challenge.
+        Get the reason playstrategy-bot declined an incoming challenge.
 
         :param requirement_met: Whether a requirement is met.
         :param decline_reason: The reason we declined the challenge if the requirement wasn't met.

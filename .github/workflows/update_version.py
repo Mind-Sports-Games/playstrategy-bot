@@ -1,4 +1,4 @@
-"""Automatically updates the lichess-bot version."""
+"""Automatically updates the playstrategy-bot version."""
 import yaml
 import datetime
 import os
@@ -6,7 +6,7 @@ import os
 with open("versioning.yml") as version_file:
     versioning_info = yaml.safe_load(version_file)
 
-current_version = versioning_info["lichess_bot_version"]
+current_version = versioning_info["playstrategy_bot_version"]
 
 utc_datetime = datetime.datetime.utcnow()
 new_version = f"{utc_datetime.year}.{utc_datetime.month}.{utc_datetime.day}."
@@ -17,7 +17,7 @@ if current_version.startswith(new_version):
 else:
     new_version += "1"
 
-versioning_info["lichess_bot_version"] = new_version
+versioning_info["playstrategy_bot_version"] = new_version
 
 with open("versioning.yml", "w") as version_file:
     yaml.dump(versioning_info, version_file, sort_keys=False)

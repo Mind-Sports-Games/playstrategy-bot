@@ -24,7 +24,7 @@ from typing import Any, Optional, Union, Literal
 OPTIONS_TYPE = dict[str, Any]
 MOVE_INFO_TYPE = dict[str, Any]
 COMMANDS_TYPE = list[str]
-LICHESS_EGTB_MOVE = dict[str, Any]
+PLAYSTRATEGY_EGTB_MOVE = dict[str, Any]
 CHESSDB_EGTB_MOVE = dict[str, Any]
 MOVE = Union[chess.engine.PlayResult, list[chess.Move]]
 
@@ -117,9 +117,9 @@ class EngineWrapper:
 
         :param board: The current position.
         :param game: The game that the bot is playing.
-        :param li: Provides communication with lichess.org.
+        :param li: Provides communication with playstrategy.org.
         :param start_time: The time that the bot received the move.
-        :param move_overhead: The time it takes to communicate between the engine and lichess.org.
+        :param move_overhead: The time it takes to communicate between the engine and playstrategy.org.
         :param can_ponder: Whether the engine is allowed to ponder.
         :param is_correspondence: Whether this is a correspondence or unlimited game.
         :param correspondence_move_time: The time the engine will think if `is_correspondence` is true.
@@ -130,7 +130,7 @@ class EngineWrapper:
         polyglot_cfg = engine_cfg.polyglot
         online_moves_cfg = engine_cfg.online_moves
         draw_or_resign_cfg = engine_cfg.draw_or_resign
-        lichess_bot_tbs = engine_cfg.lichess_bot_tbs
+        playstrategy_bot_tbs = engine_cfg.playstrategy_bot_tbs
 
         best_move: MOVE
         best_move = get_book_move(board, game, polyglot_cfg)
@@ -138,7 +138,7 @@ class EngineWrapper:
         if best_move.move is None:
             best_move = get_egtb_move(board,
                                       game,
-                                      lichess_bot_tbs,
+                                      playstrategy_bot_tbs,
                                       draw_or_resign_cfg)
 
         if not isinstance(best_move, list) and best_move.move is None:
@@ -352,7 +352,7 @@ class EngineWrapper:
         def to_readable_item(stat: str, value: Any) -> tuple[str, Any]:
             readable = {"wdl": "winrate", "ponderpv": "PV", "nps": "speed", "score": "evaluation", "time": "movetime"}
             stat = readable.get(stat, stat)
-            if stat == "string" and value.startswith("lichess-bot-source:"):
+            if stat == "string" and value.startswith("playstrategy-bot-source:"):
                 stat = "source"
                 value = value.split(":", 1)[1]
             return stat.title(), value
@@ -368,7 +368,7 @@ class EngineWrapper:
             len_bot_stats = len(", ".join(bot_stats)) + PONDERPV_CHARACTERS
             ponder_pv = info["Pv"].split()
             try:
-                while len(" ".join(ponder_pv)) + len_bot_stats > lichess.MAX_CHAT_MESSAGE_LEN:
+                while len(" ".join(ponder_pv)) + len_bot_stats > playstrategy.MAX_CHAT_MESSAGE_LEN:
                     ponder_pv.pop()
                 if ponder_pv[-1].endswith("."):
                     ponder_pv.pop()
@@ -408,7 +408,7 @@ class EngineWrapper:
         """
         Inform engine of the game ending.
 
-        :param game: The final game state from lichess.
+        :param game: The final game state from playstrategy.
         :param board: The final board state.
         """
         termination = game.state.get("status")
@@ -597,7 +597,7 @@ def single_move_time(board: chess.Board, game: model.Game, search_time: datetime
     :param game: The game that the bot is playing.
     :param search_time: How long the engine should search.
     :param start_time: The time we have left.
-    :param move_overhead: The time it takes to communicate between the engine and lichess-bot.
+    :param move_overhead: The time it takes to communicate between the engine and playstrategy-bot.
     :return: The time to choose a move.
     """
     pre_move_time = setup_timer.time_since_reset()
@@ -616,7 +616,7 @@ def first_move_time(game: model.Game) -> chess.engine.Limit:
     :param game: The game that the bot is playing.
     :return: The time to choose the first move.
     """
-    # Need to hardcode first movetime since Lichess has 30 sec limit.
+    # Need to hardcode first movetime since PlayStrategy has 30 sec limit.
     search_time = seconds(10)
     logger.info(f"Searching for time {sec_str(search_time)} seconds for game {game.id}")
     return chess.engine.Limit(time=to_seconds(search_time), clock_id="first move")
@@ -632,7 +632,7 @@ def game_clock_time(board: chess.Board,
     :param board: The current positions.
     :param game: The game that the bot is playing.
     :param start_time: The time we have left.
-    :param move_overhead: The time it takes to communicate between the engine and lichess-bot.
+    :param move_overhead: The time it takes to communicate between the engine and playstrategy-bot.
     :return: The time to play a move.
     """
     pre_move_time = setup_timer.time_since_reset()
@@ -687,7 +687,7 @@ def get_book_move(board: chess.Board, game: model.Game,
 
         if move is not None:
             logger.info(f"Got move {move} from book {book} for game {game.id}")
-            return chess.engine.PlayResult(move, None, {"string": "lichess-bot-source:Opening Book"})
+            return chess.engine.PlayResult(move, None, {"string": "playstrategy-bot-source:Opening Book"})
 
     return no_book_move
 
@@ -727,18 +727,18 @@ def get_online_move(li: lichess.Lichess, board: chess.Board, game: model.Game, o
         return chess.engine.PlayResult(None, None)
 
     chessdb_cfg = online_moves_cfg.chessdb_book
-    lichess_cloud_cfg = online_moves_cfg.lichess_cloud_analysis
-    opening_explorer_cfg = online_moves_cfg.lichess_opening_explorer
+    playstrategy_cloud_cfg = online_moves_cfg.playstrategy_cloud_analysis
+    opening_explorer_cfg = online_moves_cfg.playstrategy_opening_explorer
 
     for online_source, cfg in ((get_chessdb_move, chessdb_cfg),
-                               (get_lichess_cloud_move, lichess_cloud_cfg),
+                               (get_playstrategy_cloud_move, playstrategy_cloud_cfg),
                                (get_opening_explorer_move, opening_explorer_cfg)):
         best_move, comment = online_source(li, board, game, cfg)
         if best_move:
             return chess.engine.PlayResult(chess.Move.from_uci(best_move), None, comment)
 
     out_of_online_opening_book_moves[game.id] += 1
-    used_opening_books = chessdb_cfg.enabled or lichess_cloud_cfg.enabled or opening_explorer_cfg.enabled
+    used_opening_books = chessdb_cfg.enabled or playstrategy_cloud_cfg.enabled or opening_explorer_cfg.enabled
     if out_of_online_opening_book_moves[game.id] == max_out_of_book_moves and used_opening_books:
         logger.info(f"Will stop using online opening books for game {game.id}.")
     return chess.engine.PlayResult(None, None)
@@ -775,7 +775,7 @@ def get_chessdb_move(li: lichess.Lichess, board: chess.Board, game: model.Game,
                     comment["score"] = chess.engine.PovScore(chess.engine.Cp(score), board.turn)
                     comment["depth"] = data["depth"]
                     comment["pv"] = list(map(chess.Move.from_uci, data["pv"]))
-                    comment["string"] = "lichess-bot-source:ChessDB"
+                    comment["string"] = "playstrategy-bot-source:ChessDB"
                     logger.info(f"Got move {move} from chessdb.cn (depth: {depth}, score: {score}) for game {game.id}")
             else:
                 move = data["move"]
@@ -786,40 +786,40 @@ def get_chessdb_move(li: lichess.Lichess, board: chess.Board, game: model.Game,
     return move, comment
 
 
-def get_lichess_cloud_move(li: lichess.Lichess, board: chess.Board, game: model.Game,
-                           lichess_cloud_cfg: config.Configuration) -> tuple[Optional[str], chess.engine.InfoDict]:
-    """Get a move from the lichess's cloud analysis."""
+def get_playstrategy_cloud_move(li: lichess.Lichess, board: chess.Board, game: model.Game,
+                           playstrategy_cloud_cfg: config.Configuration) -> tuple[Optional[str], chess.engine.InfoDict]:
+    """Get a move from the playstrategy's cloud analysis."""
     wb = "w" if board.turn == chess.WHITE else "b"
     time_left = msec(game.state[f"{wb}time"])
-    min_time = seconds(lichess_cloud_cfg.min_time)
-    use_lichess_cloud = lichess_cloud_cfg.enabled
-    if not use_lichess_cloud or time_left < min_time:
+    min_time = seconds(playstrategy_cloud_cfg.min_time)
+    use_playstrategy_cloud = playstrategy_cloud_cfg.enabled
+    if not use_playstrategy_cloud or time_left < min_time:
         return None, {}
 
     move = None
     comment: chess.engine.InfoDict = {}
 
-    quality = lichess_cloud_cfg.move_quality
+    quality = playstrategy_cloud_cfg.move_quality
     multipv = 1 if quality == "best" else 5
     variant = "standard" if board.uci_variant == "chess" else board.uci_variant
 
     try:
-        data = li.online_book_get("https://lichess.org/api/cloud-eval",
+        data = li.online_book_get("https://playstrategy.org/api/cloud-eval",
                                   params={"fen": board.fen(),
                                           "multiPv": multipv,
                                           "variant": variant})
         if "error" not in data:
             depth = data["depth"]
             knodes = data["knodes"]
-            min_depth = lichess_cloud_cfg.min_depth
-            min_knodes = lichess_cloud_cfg.min_knodes
+            min_depth = playstrategy_cloud_cfg.min_depth
+            min_knodes = playstrategy_cloud_cfg.min_knodes
             if depth >= min_depth and knodes >= min_knodes:
                 if quality == "best":
                     pv = data["pvs"][0]
                 else:
                     best_eval = data["pvs"][0]["cp"]
                     pvs = data["pvs"]
-                    max_difference = lichess_cloud_cfg.max_score_difference
+                    max_difference = playstrategy_cloud_cfg.max_score_difference
                     if wb == "w":
                         pvs = list(filter(lambda pv: pv["cp"] >= best_eval - max_difference, pvs))
                     else:
@@ -831,8 +831,8 @@ def get_lichess_cloud_move(li: lichess.Lichess, board: chess.Board, game: model.
                 comment["depth"] = data["depth"]
                 comment["nodes"] = data["knodes"] * 1000
                 comment["pv"] = list(map(chess.Move.from_uci, pv["moves"].split()))
-                comment["string"] = "lichess-bot-source:Lichess Cloud Analysis"
-                logger.info(f"Got move {move} from lichess cloud analysis (depth: {depth}, score: {score}, knodes: {knodes})"
+                comment["string"] = "playstrategy-bot-source:PlayStrategy Cloud Analysis"
+                logger.info(f"Got move {move} from playstrategy cloud analysis (depth: {depth}, score: {score}, knodes: {knodes})"
                             f" for game {game.id}")
     except Exception:
         pass
@@ -843,7 +843,7 @@ def get_lichess_cloud_move(li: lichess.Lichess, board: chess.Board, game: model.
 def get_opening_explorer_move(li: lichess.Lichess, board: chess.Board, game: model.Game,
                               opening_explorer_cfg: config.Configuration
                               ) -> tuple[Optional[str], chess.engine.InfoDict]:
-    """Get a move from lichess's opening explorer."""
+    """Get a move from playstrategy's opening explorer."""
     wb = "w" if board.turn == chess.WHITE else "b"
     time_left = msec(game.state[f"{wb}time"])
     min_time = seconds(opening_explorer_cfg.min_time)
@@ -857,20 +857,20 @@ def get_opening_explorer_move(li: lichess.Lichess, board: chess.Board, game: mod
     try:
         if source == "masters":
             params = {"fen": board.fen(), "moves": 100}
-            response = li.online_book_get("https://explorer.lichess.ovh/masters", params)
-            comment = {"string": "lichess-bot-source:Lichess Opening Explorer (Masters)"}
+            response = li.online_book_get("https://explorer.playstrategy.ovh/masters", params)
+            comment = {"string": "playstrategy-bot-source:PlayStrategy Opening Explorer (Masters)"}
         elif source == "player":
             player = opening_explorer_cfg.player_name
             if not player:
                 player = game.username
             params = {"player": player, "fen": board.fen(), "moves": 100, "variant": variant,
                       "recentGames": 0, "color": "white" if wb == "w" else "black"}
-            response = li.online_book_get("https://explorer.lichess.ovh/player", params, True)
-            comment = {"string": "lichess-bot-source:Lichess Opening Explorer (Player)"}
+            response = li.online_book_get("https://explorer.playstrategy.ovh/player", params, True)
+            comment = {"string": "playstrategy-bot-source:PlayStrategy Opening Explorer (Player)"}
         else:
             params = {"fen": board.fen(), "moves": 100, "variant": variant, "topGames": 0, "recentGames": 0}
-            response = li.online_book_get("https://explorer.lichess.ovh/lichess", params)
-            comment = {"string": "lichess-bot-source:Lichess Opening Explorer (Lichess)"}
+            response = li.online_book_get("https://explorer.playstrategy.ovh/playstrategy", params)
+            comment = {"string": "playstrategy-bot-source:PlayStrategy Opening Explorer (PlayStrategy)"}
         moves = []
         for possible_move in response["moves"]:
             games_played = possible_move["white"] + possible_move["black"] + possible_move["draws"]
@@ -882,7 +882,7 @@ def get_opening_explorer_move(li: lichess.Lichess, board: chess.Board, game: mod
                               games_played if opening_explorer_cfg.sort == "winrate" else winrate, possible_move["uci"]))
         moves.sort(reverse=True)
         move = moves[0][2]
-        logger.info(f"Got move {move} from lichess opening explorer ({opening_explorer_cfg.sort}: {moves[0][0]})"
+        logger.info(f"Got move {move} from playstrategy opening explorer ({opening_explorer_cfg.sort}: {moves[0][0]})"
                     f" for game {game.id}")
     except Exception:
         pass
@@ -893,7 +893,7 @@ def get_opening_explorer_move(li: lichess.Lichess, board: chess.Board, game: mod
 def get_online_egtb_move(li: lichess.Lichess, board: chess.Board, game: model.Game, online_egtb_cfg: config.Configuration
                          ) -> tuple[Union[str, list[str], None], int, chess.engine.InfoDict]:
     """
-    Get a move from an online egtb (either by lichess or chessdb).
+    Get a move from an online egtb (either by playstrategy or chessdb).
 
     If `move_quality` is `suggest`, then it will return a list of moves for the engine to choose from.
     """
@@ -905,7 +905,7 @@ def get_online_egtb_move(li: lichess.Lichess, board: chess.Board, game: model.Ga
     if (not use_online_egtb
             or msec(game.state[f"{wb}time"]) < minimum_time
             or board.uci_variant not in ["chess", "antichess", "atomic"]
-            and source == "lichess"
+            and source == "playstrategy"
             or board.uci_variant != "chess"
             and source == "chessdb"
             or pieces > online_egtb_cfg.max_pieces
@@ -917,8 +917,8 @@ def get_online_egtb_move(li: lichess.Lichess, board: chess.Board, game: model.Ga
     variant = "standard" if board.uci_variant == "chess" else str(board.uci_variant)
 
     try:
-        if source == "lichess":
-            return get_lichess_egtb_move(li, game, board, quality, variant)
+        if source == "playstrategy":
+            return get_playstrategy_egtb_move(li, game, board, quality, variant)
         elif source == "chessdb":
             return get_chessdb_egtb_move(li, game, board, quality)
     except Exception:
@@ -927,18 +927,18 @@ def get_online_egtb_move(li: lichess.Lichess, board: chess.Board, game: model.Ga
     return None, -3, {}
 
 
-def get_egtb_move(board: chess.Board, game: model.Game, lichess_bot_tbs: config.Configuration,
+def get_egtb_move(board: chess.Board, game: model.Game, playstrategy_bot_tbs: config.Configuration,
                   draw_or_resign_cfg: config.Configuration) -> Union[chess.engine.PlayResult, list[chess.Move]]:
     """
     Get a move from a local egtb.
 
     If `move_quality` is `suggest`, then it will return a list of moves for the engine to choose from.
     """
-    best_move, wdl = get_syzygy(board, game, lichess_bot_tbs.syzygy)
-    source = "lichess-bot-source:Syzygy EGTB"
+    best_move, wdl = get_syzygy(board, game, playstrategy_bot_tbs.syzygy)
+    source = "playstrategy-bot-source:Syzygy EGTB"
     if best_move is None:
-        best_move, wdl = get_gaviota(board, game, lichess_bot_tbs.gaviota)
-        source = "lichess-bot-source:Gaviota EGTB"
+        best_move, wdl = get_gaviota(board, game, playstrategy_bot_tbs.gaviota)
+        source = "playstrategy-bot-source:Gaviota EGTB"
     if best_move:
         can_offer_draw = draw_or_resign_cfg.offer_draw_enabled
         offer_draw_for_zero = draw_or_resign_cfg.offer_draw_for_egtb_zero
@@ -956,10 +956,10 @@ def get_egtb_move(board: chess.Board, game: model.Game, lichess_bot_tbs: config.
     return chess.engine.PlayResult(None, None)
 
 
-def get_lichess_egtb_move(li: lichess.Lichess, game: model.Game, board: chess.Board, quality: str,
+def get_playstrategy_egtb_move(li: lichess.Lichess, game: model.Game, board: chess.Board, quality: str,
                           variant: str) -> tuple[Union[str, list[str], None], int, chess.engine.InfoDict]:
     """
-    Get a move from lichess's egtb.
+    Get a move from playstrategy's egtb.
 
     If `move_quality` is `suggest`, then it will return a list of moves for the engine to choose from.
     """
@@ -973,7 +973,7 @@ def get_lichess_egtb_move(li: lichess.Lichess, game: model.Game, board: chess.Bo
     pieces = chess.popcount(board.occupied)
     max_pieces = 7 if board.uci_variant == "chess" else 6
     if pieces <= max_pieces:
-        data = li.online_book_get(f"http://tablebase.lichess.ovh/{variant}",
+        data = li.online_book_get(f"http://tablebase.playstrategy.ovh/{variant}",
                                   params={"fen": board.fen()})
         if quality == "best":
             move = data["moves"][0]["uci"]
@@ -982,18 +982,18 @@ def get_lichess_egtb_move(li: lichess.Lichess, game: model.Game, board: chess.Bo
             dtm = data["moves"][0]["dtm"]
             if dtm:
                 dtm *= -1
-            logger.info(f"Got move {move} from tablebase.lichess.ovh (wdl: {wdl}, dtz: {dtz}, dtm: {dtm}) for game {game.id}")
+            logger.info(f"Got move {move} from tablebase.playstrategy.ovh (wdl: {wdl}, dtz: {dtz}, dtm: {dtm}) for game {game.id}")
         else:  # quality == "suggest":
             best_wdl = name_to_wld[data["moves"][0]["category"]]
 
-            def good_enough(possible_move: LICHESS_EGTB_MOVE) -> bool:
+            def good_enough(possible_move: PLAYSTRATEGY_EGTB_MOVE) -> bool:
                 return name_to_wld[possible_move["category"]] == best_wdl
 
             possible_moves = list(filter(good_enough, data["moves"]))
             if len(possible_moves) > 1:
                 move = [move["uci"] for move in possible_moves]
                 wdl = best_wdl * -1
-                logger.info(f"Suggesting moves from tablebase.lichess.ovh (wdl: {wdl}) for game {game.id}")
+                logger.info(f"Suggesting moves from tablebase.playstrategy.ovh (wdl: {wdl}) for game {game.id}")
             else:
                 best_move = possible_moves[0]
                 move = best_move["uci"]
@@ -1002,10 +1002,10 @@ def get_lichess_egtb_move(li: lichess.Lichess, game: model.Game, board: chess.Bo
                 dtm = best_move["dtm"]
                 if dtm:
                     dtm *= -1
-                logger.info(f"Got move {move} from tablebase.lichess.ovh (wdl: {wdl}, dtz: {dtz}, dtm: {dtm})"
+                logger.info(f"Got move {move} from tablebase.playstrategy.ovh (wdl: {wdl}, dtz: {dtz}, dtm: {dtm})"
                             f" for game {game.id}")
 
-        return move, wdl, {"string": "lichess-bot-source:Lichess EGTB"}
+        return move, wdl, {"string": "playstrategy-bot-source:PlayStrategy EGTB"}
     return None, -3, {}
 
 
@@ -1057,7 +1057,7 @@ def get_chessdb_egtb_move(li: lichess.Lichess, game: model.Game, board: chess.Bo
                 dtz = score_to_dtz(score)
                 logger.info(f"Got move {move} from chessdb.cn (wdl: {wdl}, dtz: {dtz}) for game {game.id}")
 
-        return move, wdl, {"string": "lichess-bot-source:ChessDB EGTB"}
+        return move, wdl, {"string": "playstrategy-bot-source:ChessDB EGTB"}
     return None, -3, {}
 
 

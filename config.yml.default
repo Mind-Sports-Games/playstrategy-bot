@@ -1,11 +1,11 @@
-token: "xxxxxxxxxxxxxxxxxxxxxx"    # Lichess OAuth2 Token.
-url: "https://lichess.org/"        # Lichess base URL.
+token: "xxxxxxxxxxxxxxxxxxxxxx"    # PlayStrategy OAuth2 Token.
+url: "https://playstrategy.org/"        # PlayStrategy base URL.
 
 engine:                            # Engine settings.
-  dir: "./engines/"                # Directory containing the engine. This can be an absolute path or one relative to lichess-bot/.
+  dir: "./engines/"                # Directory containing the engine. This can be an absolute path or one relative to playstrategy-bot/.
   name: "engine_name"              # Binary name of the engine to use.
   working_dir: ""                  # Directory where the chess engine will read and write files. If blank or missing, the current directory is used.
-                                   # NOTE: If working_dir is set, the engine will look for files and directories relative to this directory, not where lichess-bot was launched. Absolute paths are unaffected.
+                                   # NOTE: If working_dir is set, the engine will look for files and directories relative to this directory, not where playstrategy-bot was launched. Absolute paths are unaffected.
   protocol: "uci"                  # "uci", "xboard" or "homemade"
   ponder: true                     # Think on opponent's time.
 
@@ -44,28 +44,28 @@ engine:                            # Engine settings.
       min_time: 20                 # Minimum time (in seconds) to use chessdb book.
       move_quality: "good"         # One of "all", "good", "best".
       min_depth: 20                # Only for move_quality: "best".
-    lichess_cloud_analysis:
-      enabled: false               # Whether or not to use lichess cloud analysis.
+    playstrategy_cloud_analysis:
+      enabled: false               # Whether or not to use playstrategy cloud analysis.
       min_time: 20                 # Minimum time (in seconds) the bot must have to use cloud analysis.
       move_quality: "best"         # One of "good", "best".
       max_score_difference: 50     # Only for move_quality: "good". The maximum score difference (in cp) between the best move and the other moves.
       min_depth: 20
       min_knodes: 0
-    lichess_opening_explorer:
+    playstrategy_opening_explorer:
       enabled: false
       min_time: 20
-      source: "masters"            # One of "lichess", "masters", "player"
-      player_name: ""              # The lichess username. Leave empty for the bot's username to be used. Used only when source is "player".
+      source: "masters"            # One of "playstrategy", "masters", "player"
+      player_name: ""              # The playstrategy username. Leave empty for the bot's username to be used. Used only when source is "player".
       sort: "winrate"              # One of "winrate", "games_played"
       min_games: 10                # Minimum number of times a move must have been played to be chosen.
     online_egtb:
       enabled: false               # Whether or not to enable online endgame tablebases.
       min_time: 20                 # Minimum time (in seconds) the bot must have to use online EGTBs.
       max_pieces: 7                # Maximum number of pieces on the board to use endgame tablebases.
-      source: "lichess"            # One of "lichess", "chessdb".
+      source: "playstrategy"            # One of "playstrategy", "chessdb".
       move_quality: "best"         # One of "best" or "suggest" (it takes all the moves with the same WDL and tells the engine to only consider these; will move instantly if there is only 1 "good" move).
 
-  lichess_bot_tbs:                 # The tablebases list here will be read by lichess-bot, not the engine.
+  playstrategy_bot_tbs:                 # The tablebases list here will be read by playstrategy-bot, not the engine.
     syzygy:
       enabled: false               # Whether or not to use local syzygy endgame tablebases.
       paths:                       # Paths to Syzygy endgame tablebases.
@@ -134,7 +134,7 @@ challenge:                         # Incoming challenges.
   max_days: 14                     # Maximum number of days per move to accept a challenge for a correspondence game.
                                    # Unlimited games can be accepted by removing this field or specifying .inf
   min_days: 1                      # Minimum number of days per move to accept a challenge for a correspondence game.
-  variants:                        # Chess variants to accept (https://lichess.org/variant).
+  variants:                        # Chess variants to accept (https://playstrategy.org/variant).
     - standard
 #   - fromPosition
 #   - antichess
@@ -176,7 +176,7 @@ greeting:
 
 # pgn_directory: "game_records"    # A directory where PGN-format records of the bot's games are kept
 # pgn_file_grouping: "game"        # How to group games into files. Options are "game", "opponent", and "all"
-                                   # "game" (default) - every game is written to a different file named "{White name} vs. {Black name} - {lichess game ID}.pgn"
+                                   # "game" (default) - every game is written to a different file named "{White name} vs. {Black name} - {playstrategy game ID}.pgn"
                                    # "opponent" - every game with a given opponent is written to a file named "{Bot name} games vs. {Opponent name}.pgn"
                                    # "all" - every game is written to a single file named "{Bot name} games.pgn"
 
@@ -193,11 +193,11 @@ matchmaking:
 #  challenge_days:                 # Days for correspondence challenge (to be chosen at random).
 #    - 1
 #    - 2
-# opponent_min_rating: 600         # Opponents rating should be above this value (600 is the minimum rating in lichess).
-# opponent_max_rating: 4000        # Opponents rating should be below this value (4000 is the maximum rating in lichess).
+# opponent_min_rating: 600         # Opponents rating should be above this value (600 is the minimum rating in playstrategy).
+# opponent_max_rating: 4000        # Opponents rating should be below this value (4000 is the maximum rating in playstrategy).
   opponent_rating_difference: 300  # The maximum difference in rating between the bot's rating and opponent's rating.
   rating_preference: "none"        # One of "none", "high", "low".
-  opponent_allow_tos_violation: false # Set to 'true' to allow challenging bots that violated the Lichess Terms of Service.
+  opponent_allow_tos_violation: false # Set to 'true' to allow challenging bots that violated the PlayStrategy Terms of Service.
   challenge_mode: "random"         # Set it to the mode in which challenges are sent. Possible options are 'casual', 'rated' and 'random'.
   challenge_filter: none           # If a bot declines a challenge, do not issue a similar challenge to that bot. Possible options are 'none', 'coarse', and 'fine'.
 # block_list:                      # The list of bots that will not be challenged

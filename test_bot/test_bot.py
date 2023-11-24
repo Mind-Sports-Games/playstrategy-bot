@@ -1,4 +1,4 @@
-"""Test lichess-bot."""
+"""Test playstrategy-bot."""
 import pytest
 import zipfile
 import requests
@@ -18,9 +18,9 @@ from timer import Timer, to_seconds, seconds
 from typing import Any
 if __name__ == "__main__":
     sys.exit(f"The script {os.path.basename(__file__)} should only be run by pytest.")
-shutil.copyfile("lichess.py", "correct_lichess.py")
-shutil.copyfile("test_bot/lichess.py", "lichess.py")
-lichess_bot = importlib.import_module("lichess-bot")
+shutil.copyfile("playstrategy.py", "correct_playstrategy.py")
+shutil.copyfile("test_bot/playstrategy.py", "playstrategy.py")
+playstrategy_bot = importlib.import_module("playstrategy-bot")
 
 platform = sys.platform
 file_extension = ".exe" if platform == "win32" else ""
@@ -84,13 +84,13 @@ download_sf()
 if platform == "win32":
     download_lc0()
     download_sjeng()
-logging_level = lichess_bot.logging.DEBUG
-lichess_bot.logging_configurer(logging_level, None, None, False)
-lichess_bot.logger.info("Downloaded engines")
+logging_level = playstrategy_bot.logging.DEBUG
+playstrategy_bot.logging_configurer(logging_level, None, None, False)
+playstrategy_bot.logger.info("Downloaded engines")
 
 
 def thread_for_test() -> None:
-    """Play the moves for the opponent of lichess-bot."""
+    """Play the moves for the opponent of playstrategy-bot."""
     open("./logs/events.txt", "w").close()
     open("./logs/states.txt", "w").close()
     open("./logs/result.txt", "w").close()
@@ -136,7 +136,7 @@ def thread_for_test() -> None:
             with open("./logs/states.txt", "w") as file:
                 file.write(state_str)
 
-        else:  # lichess-bot move.
+        else:  # playstrategy-bot move.
             move_timer = Timer()
             state2 = state_str
             moves_are_correct = False
@@ -179,22 +179,22 @@ def thread_for_test() -> None:
 
 
 def run_bot(raw_config: dict[str, Any], logging_level: int) -> str:
-    """Start lichess-bot."""
+    """Start playstrategy-bot."""
     config.insert_default_values(raw_config)
     CONFIG = config.Configuration(raw_config)
-    lichess_bot.logger.info(lichess_bot.intro())
-    li = lichess_bot.lichess.Lichess(CONFIG.token, CONFIG.url, lichess_bot.__version__)
+    playstrategy_bot.logger.info(playstrategy_bot.intro())
+    li = playstrategy_bot.lichess.Lichess(CONFIG.token, CONFIG.url, playstrategy_bot.__version__)
 
     user_profile = li.get_profile()
     username = user_profile["username"]
     if user_profile.get("title") != "BOT":
         return "0"
-    lichess_bot.logger.info(f"Welcome {username}!")
-    lichess_bot.disable_restart()
+    playstrategy_bot.logger.info(f"Welcome {username}!")
+    playstrategy_bot.disable_restart()
 
     thr = threading.Thread(target=thread_for_test)
     thr.start()
-    lichess_bot.start(li, user_profile, CONFIG, logging_level, None, None, one_game=True)
+    playstrategy_bot.start(li, user_profile, CONFIG, logging_level, None, None, one_game=True)
     thr.join()
 
     with open("./logs/result.txt") as file:
@@ -204,7 +204,7 @@ def run_bot(raw_config: dict[str, Any], logging_level: int) -> str:
 
 @pytest.mark.timeout(150, method="thread")
 def test_sf() -> None:
-    """Test lichess-bot with Stockfish (UCI)."""
+    """Test playstrategy-bot with Stockfish (UCI)."""
     if platform != "linux" and platform != "win32":
         assert True
         return
@@ -220,7 +220,7 @@ def test_sf() -> None:
     CONFIG["pgn_directory"] = "TEMP/sf_game_record"
     win = run_bot(CONFIG, logging_level)
     shutil.rmtree("logs")
-    lichess_bot.logger.info("Finished Testing SF")
+    playstrategy_bot.logger.info("Finished Testing SF")
     assert win == "1"
     assert os.path.isfile(os.path.join(CONFIG["pgn_directory"],
                                        "bo vs b - zzzzzzzz.pgn"))
@@ -228,7 +228,7 @@ def test_sf() -> None:
 
 @pytest.mark.timeout(150, method="thread")
 def test_lc0() -> None:
-    """Test lichess-bot with Leela Chess Zero (UCI)."""
+    """Test playstrategy-bot with Leela Chess Zero (UCI)."""
     if platform != "win32":
         assert True
         return
@@ -247,7 +247,7 @@ def test_lc0() -> None:
     CONFIG["pgn_directory"] = "TEMP/lc0_game_record"
     win = run_bot(CONFIG, logging_level)
     shutil.rmtree("logs")
-    lichess_bot.logger.info("Finished Testing LC0")
+    playstrategy_bot.logger.info("Finished Testing LC0")
     assert win == "1"
     assert os.path.isfile(os.path.join(CONFIG["pgn_directory"],
                                        "bo vs b - zzzzzzzz.pgn"))
@@ -255,7 +255,7 @@ def test_lc0() -> None:
 
 @pytest.mark.timeout(150, method="thread")
 def test_sjeng() -> None:
-    """Test lichess-bot with Sjeng (XBoard)."""
+    """Test playstrategy-bot with Sjeng (XBoard)."""
     if platform != "win32":
         assert True
         return
@@ -273,7 +273,7 @@ def test_sjeng() -> None:
     CONFIG["pgn_directory"] = "TEMP/sjeng_game_record"
     win = run_bot(CONFIG, logging_level)
     shutil.rmtree("logs")
-    lichess_bot.logger.info("Finished Testing Sjeng")
+    playstrategy_bot.logger.info("Finished Testing Sjeng")
     assert win == "1"
     assert os.path.isfile(os.path.join(CONFIG["pgn_directory"],
                                        "bo vs b - zzzzzzzz.pgn"))
@@ -281,7 +281,7 @@ def test_sjeng() -> None:
 
 @pytest.mark.timeout(150, method="thread")
 def test_homemade() -> None:
-    """Test lichess-bot with a homemade engine running Stockfish (Homemade)."""
+    """Test playstrategy-bot with a homemade engine running Stockfish (Homemade)."""
     if platform != "linux" and platform != "win32":
         assert True
         return
@@ -312,7 +312,7 @@ class Stockfish(ExampleEngine):
     shutil.rmtree("logs")
     with open("strategies.py", "w") as file:
         file.write(original_strategies)
-    lichess_bot.logger.info("Finished Testing Homemade")
+    playstrategy_bot.logger.info("Finished Testing Homemade")
     assert win == "1"
     assert os.path.isfile(os.path.join(CONFIG["pgn_directory"],
                                        "bo vs b - zzzzzzzz.pgn"))

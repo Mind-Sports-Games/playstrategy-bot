@@ -1,4 +1,4 @@
-"""The main module that controls lichess-bot."""
+"""The main module that controls playstrategy-bot."""
 import argparse
 import chess
 import chess.pgn
@@ -50,20 +50,20 @@ logger = logging.getLogger(__name__)
 with open("versioning.yml") as version_file:
     versioning_info = yaml.safe_load(version_file)
 
-__version__ = versioning_info["lichess_bot_version"]
+__version__ = versioning_info["playstrategy_bot_version"]
 
 terminated = False
 restart = True
 
 
 def disable_restart() -> None:
-    """Disable restarting lichess-bot when errors occur. Used during testing."""
+    """Disable restarting playstrategy-bot when errors occur. Used during testing."""
     global restart
     restart = False
 
 
 def signal_handler(signal: int, frame: Any) -> None:
-    """Terminate lichess-bot."""
+    """Terminate playstrategy-bot."""
     global terminated
     logger.debug("Received SIGINT. Terminating client.")
     terminated = True
@@ -196,15 +196,15 @@ def thread_logging_configurer(queue: Union[CONTROL_QUEUE_TYPE, LOGGING_QUEUE_TYP
 def start(li: lichess.Lichess, user_profile: USER_PROFILE_TYPE, config: Configuration, logging_level: int,
           log_filename: Optional[str], auto_log_filename: Optional[str], one_game: bool = False) -> None:
     """
-    Start lichess-bot.
+    Start playstrategy-bot.
 
-    :param li: Provides communication with lichess.org.
+    :param li: Provides communication with playstrategy.org.
     :param user_profile: Information on our bot.
     :param config: The config that the bot will use.
     :param logging_level: The logging level. Either `logging.INFO` or `logging.DEBUG`.
     :param log_filename: The filename to write the logs to. If it is `None` then the logs aren't written to a file.
     :param auto_log_filename: The filename for the automatic logger. If it is `None` then the logs aren't written to a file.
-    :param one_game: Whether the bot should play only one game. Only used in `test_bot/test_bot.py` to test lichess-bot.
+    :param one_game: Whether the bot should play only one game. Only used in `test_bot/test_bot.py` to test playstrategy-bot.
     """
     logger.info(f"You're now connected to {config.url} and awaiting challenges.")
     manager = multiprocessing.Manager()
@@ -228,7 +228,7 @@ def start(li: lichess.Lichess, user_profile: USER_PROFILE_TYPE, config: Configur
     thread_logging_configurer(logging_queue)
 
     try:
-        lichess_bot_main(li,
+        playstrategy_bot_main(li,
                          user_profile,
                          config,
                          challenge_queue,
@@ -257,7 +257,7 @@ def log_proc_count(change: str, active_games: set[str]) -> None:
     logger.info(f"{symbol} Process {change}. Count: {len(active_games)}. IDs: {active_games or None}")
 
 
-def lichess_bot_main(li: lichess.Lichess,
+def playstrategy_bot_main(li: lichess.Lichess,
                      user_profile: USER_PROFILE_TYPE,
                      config: Configuration,
                      challenge_queue: MULTIPROCESSING_LIST_TYPE,
@@ -268,14 +268,14 @@ def lichess_bot_main(li: lichess.Lichess,
     """
     Handle all the games and challenges.
 
-    :param li: Provides communication with lichess.org.
+    :param li: Provides communication with playstrategy.org.
     :param user_profile: Information on our bot.
     :param config: The config that the bot will use.
     :param challenge_queue: The queue containing the challenges.
     :param control_queue: The queue containing all the events.
     :param correspondence_queue: The queue containing the correspondence games.
     :param logging_queue: The logging queue. Used by `logging_listener_proc`.
-    :param one_game: Whether the bot should play only one game. Only used in `test_bot/test_bot.py` to test lichess-bot.
+    :param one_game: Whether the bot should play only one game. Only used in `test_bot/test_bot.py` to test playstrategy-bot.
     """
     global restart
 
@@ -364,7 +364,7 @@ def next_event(control_queue: CONTROL_QUEUE_TYPE) -> EVENT_TYPE:
         return {}
 
     if "type" not in event:
-        logger.warning("Unable to handle response from lichess.org:")
+        logger.warning("Unable to handle response from playstrategy.org:")
         logger.warning(event)
         control_queue.task_done()
         return {}
@@ -431,13 +431,13 @@ def accept_challenges(li: lichess.Lichess, challenge_queue: MULTIPROCESSING_LIST
 
 
 def check_online_status(li: lichess.Lichess, user_profile: USER_PROFILE_TYPE, last_check_online_time: Timer) -> None:
-    """Check if lichess.org thinks the bot is online or not. If it isn't, we restart it."""
+    """Check if playstrategy.org thinks the bot is online or not. If it isn't, we restart it."""
     global restart
 
     if last_check_online_time.is_expired():
         try:
             if not li.is_online(user_profile["id"]):
-                logger.info("Will restart lichess-bot")
+                logger.info("Will restart playstrategy-bot")
                 restart = True
             last_check_online_time.reset()
         except (HTTPError, ReadTimeout):
@@ -542,8 +542,8 @@ def handle_challenge(event: EVENT_TYPE, li: lichess.Lichess, challenge_queue: MU
         li.decline_challenge(chlng.id, reason=decline_reason)
 
 
-@backoff.on_exception(backoff.expo, BaseException, max_time=600, giveup=lichess.is_final,  # type: ignore[arg-type]
-                      on_backoff=lichess.backoff_handler)
+@backoff.on_exception(backoff.expo, BaseException, max_time=600, giveup=playstrategy.is_final,  # type: ignore[arg-type]
+                      on_backoff=playstrategy.backoff_handler)
 def play_game(li: lichess.Lichess,
               game_id: str,
               control_queue: CONTROL_QUEUE_TYPE,
@@ -555,7 +555,7 @@ def play_game(li: lichess.Lichess,
     """
     Play a game.
 
-    :param li: Provides communication with lichess.org.
+    :param li: Provides communication with playstrategy.org.
     :param game_id: The id of the game.
     :param control_queue: The control queue that contains events (adds `local_game_done` to the queue).
     :param user_profile: Information on our bot.
@@ -824,7 +824,7 @@ def try_get_pgn_game_record(li: lichess.Lichess, config: Configuration, game: mo
     """
     Call `print_pgn_game_record` to write the game to a PGN file and handle errors raised by it.
 
-    :param li: Provides communication with lichess.org.
+    :param li: Provides communication with playstrategy.org.
     :param config: The config that the bot will use.
     :param game: Contains information about the game (e.g. the players' names).
     :param board: The board. Contains the moves.
@@ -842,7 +842,7 @@ def pgn_game_record(li: lichess.Lichess, config: Configuration, game: model.Game
     """
     Return the text of the game's PGN.
 
-    :param li: Provides communication with lichess.org.
+    :param li: Provides communication with playstrategy.org.
     :param config: The config that the bot will use.
     :param game: Contains information about the game (e.g. the players' names).
     :param board: The board. Contains the moves.
@@ -851,7 +851,7 @@ def pgn_game_record(li: lichess.Lichess, config: Configuration, game: model.Game
     if not config.pgn_directory:
         return ""
 
-    lichess_game_record = chess.pgn.read_game(io.StringIO(li.get_game_pgn(game.id))) or chess.pgn.Game()
+    playstrategy_game_record = chess.pgn.read_game(io.StringIO(li.get_game_pgn(game.id))) or chess.pgn.Game()
     try:
         # Recall previously written PGN file to retain engine evaluations.
         previous_game_path = get_game_file_path(config,
@@ -862,15 +862,15 @@ def pgn_game_record(li: lichess.Lichess, config: Configuration, game: model.Game
                                                 is_game_over(game),
                                                 force_single=True)
         with open(previous_game_path) as game_data:
-            game_record = chess.pgn.read_game(game_data) or lichess_game_record
-        game_record.headers.update(lichess_game_record.headers)
+            game_record = chess.pgn.read_game(game_data) or playstrategy_game_record
+        game_record.headers.update(playstrategy_game_record.headers)
     except FileNotFoundError:
-        game_record = lichess_game_record
+        game_record = playstrategy_game_record
 
     fill_missing_pgn_headers(game_record, game)
 
     current_node: Union[chess.pgn.Game, chess.pgn.ChildNode] = game_record.game()
-    lichess_node: Union[chess.pgn.Game, chess.pgn.ChildNode] = lichess_game_record.game()
+    playstrategy_node: Union[chess.pgn.Game, chess.pgn.ChildNode] = playstrategy_game_record.game()
     for index, move in enumerate(board.move_stack):
         next_node = current_node.next()
         if next_node is None or next_node.move != move:
@@ -878,12 +878,12 @@ def pgn_game_record(li: lichess.Lichess, config: Configuration, game: model.Game
         else:
             current_node = next_node
 
-        next_lichess_node = lichess_node.next()
-        if next_lichess_node:
-            lichess_node = next_lichess_node
-            current_node.set_clock(lichess_node.clock())
-            if current_node.comment != lichess_node.comment:
-                current_node.comment = f"{current_node.comment} {lichess_node.comment}".strip()
+        next_playstrategy_node = playstrategy_node.next()
+        if next_playstrategy_node:
+            playstrategy_node = next_playstrategy_node
+            current_node.set_clock(playstrategy_node.clock())
+            if current_node.comment != playstrategy_node.comment:
+                current_node.comment = f"{current_node.comment} {playstrategy_node.comment}".strip()
 
         commentary = engine.comment_for_board_index(index)
         pv_node = current_node.parent.add_line(commentary["pv"]) if "pv" in commentary else current_node
@@ -916,9 +916,9 @@ def get_game_file_path(config: Configuration,
 
 def fill_missing_pgn_headers(game_record: chess.pgn.Game, game: model.Game) -> None:
     """
-    Fill in any missing headers in the PGN record provided by lichess.org with information from `game`.
+    Fill in any missing headers in the PGN record provided by playstrategy.org with information from `game`.
 
-    :param game_record: A `chess.pgn.Game` object containing information about the game lichess.org's PGN file.
+    :param game_record: A `chess.pgn.Game` object containing information about the game playstrategy.org's PGN file.
     :param game: Contains information about the game (e.g. the players' names), which is used to get the local headers.
     """
     local_headers = get_headers(game)
@@ -1002,17 +1002,17 @@ def intro() -> str:
     return fr"""
     .   _/|
     .  // o\
-    .  || ._)  lichess-bot {__version__}
+    .  || ._)  playstrategy-bot {__version__}
     .  //__\
-    .  )___(   Play on Lichess with a bot
+    .  )___(   Play on PlayStrategy with a bot
     """
 
 
-def start_lichess_bot() -> None:
-    """Parse arguments passed to lichess-bot.py and starts lichess-bot."""
-    parser = argparse.ArgumentParser(description="Play on Lichess with a bot")
+def start_playstrategy_bot() -> None:
+    """Parse arguments passed to playstrategy-bot.py and starts playstrategy-bot."""
+    parser = argparse.ArgumentParser(description="Play on PlayStrategy with a bot")
     parser.add_argument("-u", action="store_true", help="Upgrade your account to a bot account.")
-    parser.add_argument("-v", action="store_true", help="Make output more verbose. Include all communication with lichess.")
+    parser.add_argument("-v", action="store_true", help="Make output more verbose. Include all communication with playstrategy.")
     parser.add_argument("--config", help="Specify a configuration file (defaults to ./config.yml).")
     parser.add_argument("-l", "--logfile", help="Record all console output to a log file.", default=None)
     parser.add_argument("--disable_auto_logging", action="store_true", help="Disable automatic logging.")
@@ -1021,7 +1021,7 @@ def start_lichess_bot() -> None:
     logging_level = logging.DEBUG if args.v else logging.INFO
     auto_log_filename = None
     if not args.disable_auto_logging:
-        auto_log_filename = "./lichess_bot_auto_logs/recent.log"
+        auto_log_filename = "./playstrategy_bot_auto_logs/recent.log"
     logging_configurer(logging_level, args.logfile, auto_log_filename, True)
     logger.info(intro(), extra={"highlighter": None})
 
@@ -1066,18 +1066,18 @@ def check_python_version() -> None:
     upgrade_request = (f"You are currently running {version_str(this_python_version)}. "
                        f"Please upgrade to {version_str(python_good_version)} or newer")
     out_of_date_error = RuntimeError("A newer version of Python is required "
-                                     f"to run this version of lichess-bot. {upgrade_request}.")
+                                     f"to run this version of playstrategy-bot. {upgrade_request}.")
     out_of_date_warning = ("A newer version of Python will be required "
-                           f"on {version_change_date} to run lichess-bot. {upgrade_request} before then.")
+                           f"on {version_change_date} to run playstrategy-bot. {upgrade_request} before then.")
 
-    this_lichess_bot_version = version_numeric(__version__)
-    lichess_bot_breaking_version = list(version_change_date.timetuple()[0:3])
+    this_playstrategy_bot_version = version_numeric(__version__)
+    playstrategy_bot_breaking_version = list(version_change_date.timetuple()[0:3])
 
     if this_python_version < python_deprecated_version:
         raise out_of_date_error
 
     if this_python_version == python_deprecated_version:
-        if this_lichess_bot_version < lichess_bot_breaking_version:
+        if this_playstrategy_bot_version < playstrategy_bot_breaking_version:
             logger.warning(out_of_date_warning)
         else:
             raise out_of_date_error
@@ -1088,7 +1088,7 @@ if __name__ == "__main__":
     try:
         while restart:
             restart = False
-            start_lichess_bot()
+            start_playstrategy_bot()
             time.sleep(10 if restart else 0)
     except Exception:
-        logger.exception("Quitting lichess-bot due to an error:")
+        logger.exception("Quitting playstrategy-bot due to an error:")

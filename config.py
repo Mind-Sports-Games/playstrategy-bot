@@ -1,4 +1,4 @@
-"""Code related to the config that lichess-bot uses."""
+"""Code related to the config that playstrategy-bot uses."""
 from __future__ import annotations
 import yaml
 import os
@@ -170,7 +170,7 @@ def insert_default_values(CONFIG: CONFIG_DICT_TYPE) -> None:
     set_config_default(CONFIG, "engine", "online_moves", key="max_retries", default=2, force_empty_values=True)
     set_config_default(CONFIG, "engine", "online_moves", key="max_depth", default=math.inf, force_empty_values=True)
     set_config_default(CONFIG, "engine", "online_moves", "online_egtb", key="enabled", default=False)
-    set_config_default(CONFIG, "engine", "online_moves", "online_egtb", key="source", default="lichess")
+    set_config_default(CONFIG, "engine", "online_moves", "online_egtb", key="source", default="playstrategy")
     set_config_default(CONFIG, "engine", "online_moves", "online_egtb", key="min_time", default=20)
     set_config_default(CONFIG, "engine", "online_moves", "online_egtb", key="max_pieces", default=7)
     set_config_default(CONFIG, "engine", "online_moves", "online_egtb", key="move_quality", default="best")
@@ -178,25 +178,25 @@ def insert_default_values(CONFIG: CONFIG_DICT_TYPE) -> None:
     set_config_default(CONFIG, "engine", "online_moves", "chessdb_book", key="min_time", default=20)
     set_config_default(CONFIG, "engine", "online_moves", "chessdb_book", key="move_quality", default="good")
     set_config_default(CONFIG, "engine", "online_moves", "chessdb_book", key="min_depth", default=20)
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_cloud_analysis", key="enabled", default=False)
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_cloud_analysis", key="min_time", default=20)
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_cloud_analysis", key="move_quality", default="best")
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_cloud_analysis", key="min_depth", default=20)
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_cloud_analysis", key="min_knodes", default=0)
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_cloud_analysis", key="max_score_difference", default=50)
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_opening_explorer", key="enabled", default=False)
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_opening_explorer", key="min_time", default=20)
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_opening_explorer", key="source", default="masters")
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_opening_explorer", key="player_name", default="")
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_opening_explorer", key="sort", default="winrate")
-    set_config_default(CONFIG, "engine", "online_moves", "lichess_opening_explorer", key="min_games", default=10)
-    set_config_default(CONFIG, "engine", "lichess_bot_tbs", "syzygy", key="enabled", default=False)
-    set_config_default(CONFIG, "engine", "lichess_bot_tbs", "syzygy", key="max_pieces", default=7)
-    set_config_default(CONFIG, "engine", "lichess_bot_tbs", "syzygy", key="move_quality", default="best")
-    set_config_default(CONFIG, "engine", "lichess_bot_tbs", "gaviota", key="enabled", default=False)
-    set_config_default(CONFIG, "engine", "lichess_bot_tbs", "gaviota", key="max_pieces", default=5)
-    set_config_default(CONFIG, "engine", "lichess_bot_tbs", "gaviota", key="move_quality", default="best")
-    set_config_default(CONFIG, "engine", "lichess_bot_tbs", "gaviota", key="min_dtm_to_consider_as_wdl_1", default=120)
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_cloud_analysis", key="enabled", default=False)
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_cloud_analysis", key="min_time", default=20)
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_cloud_analysis", key="move_quality", default="best")
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_cloud_analysis", key="min_depth", default=20)
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_cloud_analysis", key="min_knodes", default=0)
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_cloud_analysis", key="max_score_difference", default=50)
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_opening_explorer", key="enabled", default=False)
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_opening_explorer", key="min_time", default=20)
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_opening_explorer", key="source", default="masters")
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_opening_explorer", key="player_name", default="")
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_opening_explorer", key="sort", default="winrate")
+    set_config_default(CONFIG, "engine", "online_moves", "playstrategy_opening_explorer", key="min_games", default=10)
+    set_config_default(CONFIG, "engine", "playstrategy_bot_tbs", "syzygy", key="enabled", default=False)
+    set_config_default(CONFIG, "engine", "playstrategy_bot_tbs", "syzygy", key="max_pieces", default=7)
+    set_config_default(CONFIG, "engine", "playstrategy_bot_tbs", "syzygy", key="move_quality", default="best")
+    set_config_default(CONFIG, "engine", "playstrategy_bot_tbs", "gaviota", key="enabled", default=False)
+    set_config_default(CONFIG, "engine", "playstrategy_bot_tbs", "gaviota", key="max_pieces", default=5)
+    set_config_default(CONFIG, "engine", "playstrategy_bot_tbs", "gaviota", key="move_quality", default="best")
+    set_config_default(CONFIG, "engine", "playstrategy_bot_tbs", "gaviota", key="min_dtm_to_consider_as_wdl_1", default=120)
     set_config_default(CONFIG, "engine", "polyglot", key="enabled", default=False)
     set_config_default(CONFIG, "engine", "polyglot", key="max_depth", default=8)
     set_config_default(CONFIG, "engine", "polyglot", key="selection", default="weighted_random")
@@ -286,8 +286,8 @@ def validate_config(CONFIG: CONFIG_DICT_TYPE) -> None:
 
     if CONFIG["engine"]["protocol"] == "xboard":
         for section, subsection in (("online_moves", "online_egtb"),
-                                    ("lichess_bot_tbs", "syzygy"),
-                                    ("lichess_bot_tbs", "gaviota")):
+                                    ("playstrategy_bot_tbs", "syzygy"),
+                                    ("playstrategy_bot_tbs", "gaviota")):
             online_section = (CONFIG["engine"].get(section) or {}).get(subsection) or {}
             config_assert(online_section.get("move_quality") != "suggest" or not online_section.get("enabled"),
                           f"XBoard engines can't be used with `move_quality` set to `suggest` in {subsection}.")
@@ -323,7 +323,7 @@ def validate_config(CONFIG: CONFIG_DICT_TYPE) -> None:
 
     selection_choices = {"polyglot": ["weighted_random", "uniform_random", "best_move"],
                          "chessdb_book": ["all", "good", "best"],
-                         "lichess_cloud_analysis": ["good", "best"],
+                         "playstrategy_cloud_analysis": ["good", "best"],
                          "online_egtb": ["best", "suggest"]}
     for db_name, valid_selections in selection_choices.items():
         is_online = db_name != "polyglot"
@@ -336,23 +336,23 @@ def validate_config(CONFIG: CONFIG_DICT_TYPE) -> None:
                       f"`{selection}` is not a valid `engine:{select}` value. "
                       f"Please choose from {valid_selections}.")
 
-    lichess_tbs_config = CONFIG["engine"].get("lichess_bot_tbs") or {}
+    playstrategy_tbs_config = CONFIG["engine"].get("playstrategy_bot_tbs") or {}
     quality_selections = ["best", "suggest"]
     for tb in ["syzygy", "gaviota"]:
-        selection = (lichess_tbs_config.get(tb) or {}).get("move_quality")
+        selection = (playstrategy_tbs_config.get(tb) or {}).get("move_quality")
         config_assert(selection in quality_selections,
-                      f"`{selection}` is not a valid choice for `engine:lichess_bot_tbs:{tb}:move_quality`. "
+                      f"`{selection}` is not a valid choice for `engine:playstrategy_bot_tbs:{tb}:move_quality`. "
                       f"Please choose from {quality_selections}.")
 
-    explorer_choices = {"source": ["lichess", "masters", "player"],
+    explorer_choices = {"source": ["playstrategy", "masters", "player"],
                         "sort": ["winrate", "games_played"]}
-    explorer_config = (CONFIG["engine"].get("online_moves") or {}).get("lichess_opening_explorer")
+    explorer_config = (CONFIG["engine"].get("online_moves") or {}).get("playstrategy_opening_explorer")
     if explorer_config:
         for parameter, choice_list in explorer_choices.items():
             explorer_choice = explorer_config.get(parameter)
             config_assert(explorer_choice in choice_list,
                           f"`{explorer_choice}` is not a valid"
-                          f" `engine:online_moves:lichess_opening_explorer:{parameter}`"
+                          f" `engine:online_moves:playstrategy_opening_explorer:{parameter}`"
                           f" value. Please choose from {choice_list}.")
 
 
@@ -372,8 +372,8 @@ def load_config(config_file: str) -> Configuration:
 
     log_config(CONFIG)
 
-    if "LICHESS_BOT_TOKEN" in os.environ:
-        CONFIG["token"] = os.environ["LICHESS_BOT_TOKEN"]
+    if "PLAYSTRATEGY_BOT_TOKEN" in os.environ:
+        CONFIG["token"] = os.environ["PLAYSTRATEGY_BOT_TOKEN"]
 
     insert_default_values(CONFIG)
     log_config(CONFIG)

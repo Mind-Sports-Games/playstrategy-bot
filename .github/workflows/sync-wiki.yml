@@ -10,7 +10,7 @@ on:
 
 jobs:
   sync:
-    if: github.repository == 'lichess-bot-devs/lichess-bot'
+    if: github.repository == 'Mind-Sports-Games/playstrategy-bot'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: "${{ github.repository }}.wiki"
-          path: "lichess-bot.wiki"
+          path: "playstrategy-bot.wiki"
       - name: Set path
         uses: dorny/paths-filter@v2
         id: changes
@@ -58,8 +58,8 @@ jobs:
           git push
       - name: Sync all files to wiki
         run: |
-          cp -r $GITHUB_WORKSPACE/wiki/* $GITHUB_WORKSPACE/lichess-bot.wiki
-          cd $GITHUB_WORKSPACE/lichess-bot.wiki
+          cp -r $GITHUB_WORKSPACE/wiki/* $GITHUB_WORKSPACE/playstrategy-bot.wiki
+          cd $GITHUB_WORKSPACE/playstrategy-bot.wiki
           git add .
           git commit -m "Auto update wiki"
           git push

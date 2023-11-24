@@ -1,4 +1,4 @@
-"""A timer for use in lichess-bot."""
+"""A timer for use in playstrategy-bot."""
 import time
 import datetime
 from typing import Optional
@@ -56,7 +56,7 @@ def years(time_in_years: float) -> datetime.timedelta:
 
 class Timer:
     """
-    A timer for use in lichess-bot. An instance of timer can be used both as a countdown timer and a stopwatch.
+    A timer for use in playstrategy-bot. An instance of timer can be used both as a countdown timer and a stopwatch.
 
     If the duration argument in the __init__() method is greater than zero, then
     the method is_expired() indicates when the intial duration has passed. The
