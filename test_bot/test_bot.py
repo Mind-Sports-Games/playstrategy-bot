@@ -183,7 +183,7 @@ def run_bot(raw_config: dict[str, Any], logging_level: int) -> str:
     config.insert_default_values(raw_config)
     CONFIG = config.Configuration(raw_config)
     playstrategy_bot.logger.info(playstrategy_bot.intro())
-    li = playstrategy_bot.lichess.Lichess(CONFIG.token, CONFIG.url, playstrategy_bot.__version__)
+    li = playstrategy_bot.playstrategy.PlayStrategy(CONFIG.token, CONFIG.url, playstrategy_bot.__version__)
 
     user_profile = li.get_profile()
     username = user_profile["username"]

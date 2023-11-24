@@ -104,7 +104,7 @@ class EngineWrapper:
     def play_move(self,
                   board: chess.Board,
                   game: model.Game,
-                  li: lichess.Lichess,
+                  li: playstrategy.PlayStrategy,
                   setup_timer: Timer,
                   move_overhead: datetime.timedelta,
                   can_ponder: bool,
@@ -692,7 +692,7 @@ def get_book_move(board: chess.Board, game: model.Game,
     return no_book_move
 
 
-def get_online_move(li: lichess.Lichess, board: chess.Board, game: model.Game, online_moves_cfg: config.Configuration,
+def get_online_move(li: playstrategy.PlayStrategy, board: chess.Board, game: model.Game, online_moves_cfg: config.Configuration,
                     draw_or_resign_cfg: config.Configuration) -> Union[chess.engine.PlayResult, list[chess.Move]]:
     """
     Get a move from an online source.
@@ -744,7 +744,7 @@ def get_online_move(li: lichess.Lichess, board: chess.Board, game: model.Game, o
     return chess.engine.PlayResult(None, None)
 
 
-def get_chessdb_move(li: lichess.Lichess, board: chess.Board, game: model.Game,
+def get_chessdb_move(li: playstrategy.PlayStrategy, board: chess.Board, game: model.Game,
                      chessdb_cfg: config.Configuration) -> tuple[Optional[str], chess.engine.InfoDict]:
     """Get a move from chessdb.cn's opening book."""
     wb = "w" if board.turn == chess.WHITE else "b"
@@ -786,7 +786,7 @@ def get_chessdb_move(li: lichess.Lichess, board: chess.Board, game: model.Game,
     return move, comment
 
 
-def get_playstrategy_cloud_move(li: lichess.Lichess, board: chess.Board, game: model.Game,
+def get_playstrategy_cloud_move(li: playstrategy.PlayStrategy, board: chess.Board, game: model.Game,
                            playstrategy_cloud_cfg: config.Configuration) -> tuple[Optional[str], chess.engine.InfoDict]:
     """Get a move from the playstrategy's cloud analysis."""
     wb = "w" if board.turn == chess.WHITE else "b"
@@ -840,7 +840,7 @@ def get_playstrategy_cloud_move(li: lichess.Lichess, board: chess.Board, game: m
     return move, comment
 
 
-def get_opening_explorer_move(li: lichess.Lichess, board: chess.Board, game: model.Game,
+def get_opening_explorer_move(li: playstrategy.PlayStrategy, board: chess.Board, game: model.Game,
                               opening_explorer_cfg: config.Configuration
                               ) -> tuple[Optional[str], chess.engine.InfoDict]:
     """Get a move from playstrategy's opening explorer."""
@@ -890,7 +890,7 @@ def get_opening_explorer_move(li: lichess.Lichess, board: chess.Board, game: mod
     return move, comment
 
 
-def get_online_egtb_move(li: lichess.Lichess, board: chess.Board, game: model.Game, online_egtb_cfg: config.Configuration
+def get_online_egtb_move(li: playstrategy.PlayStrategy, board: chess.Board, game: model.Game, online_egtb_cfg: config.Configuration
                          ) -> tuple[Union[str, list[str], None], int, chess.engine.InfoDict]:
     """
     Get a move from an online egtb (either by playstrategy or chessdb).
@@ -956,7 +956,7 @@ def get_egtb_move(board: chess.Board, game: model.Game, playstrategy_bot_tbs: co
     return chess.engine.PlayResult(None, None)
 
 
-def get_playstrategy_egtb_move(li: lichess.Lichess, game: model.Game, board: chess.Board, quality: str,
+def get_playstrategy_egtb_move(li: playstrategy.PlayStrategy, game: model.Game, board: chess.Board, quality: str,
                           variant: str) -> tuple[Union[str, list[str], None], int, chess.engine.InfoDict]:
     """
     Get a move from playstrategy's egtb.
@@ -1009,7 +1009,7 @@ def get_playstrategy_egtb_move(li: lichess.Lichess, game: model.Game, board: che
     return None, -3, {}
 
 
-def get_chessdb_egtb_move(li: lichess.Lichess, game: model.Game, board: chess.Board,
+def get_chessdb_egtb_move(li: playstrategy.PlayStrategy, game: model.Game, board: chess.Board,
                           quality: str) -> tuple[Union[str, list[str], None], int, chess.engine.InfoDict]:
     """
     Get a move from chessdb's egtb.

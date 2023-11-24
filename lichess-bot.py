@@ -72,7 +72,7 @@ def signal_handler(signal: int, frame: Any) -> None:
 signal.signal(signal.SIGINT, signal_handler)
 
 
-def upgrade_account(li: lichess.Lichess) -> bool:
+def upgrade_account(li: playstrategy.PlayStrategy) -> bool:
     """Upgrade the account to a BOT account."""
     if li.upgrade_to_bot_account() is None:
         return False
@@ -81,7 +81,7 @@ def upgrade_account(li: lichess.Lichess) -> bool:
     return True
 
 
-def watch_control_stream(control_queue: CONTROL_QUEUE_TYPE, li: lichess.Lichess) -> None:
+def watch_control_stream(control_queue: CONTROL_QUEUE_TYPE, li: playstrategy.PlayStrategy) -> None:
     """Put the events in a queue."""
     error = None
     while not terminated:
@@ -193,7 +193,7 @@ def thread_logging_configurer(queue: Union[CONTROL_QUEUE_TYPE, LOGGING_QUEUE_TYP
     root.setLevel(logging.DEBUG)
 
 
-def start(li: lichess.Lichess, user_profile: USER_PROFILE_TYPE, config: Configuration, logging_level: int,
+def start(li: playstrategy.PlayStrategy, user_profile: USER_PROFILE_TYPE, config: Configuration, logging_level: int,
           log_filename: Optional[str], auto_log_filename: Optional[str], one_game: bool = False) -> None:
     """
     Start playstrategy-bot.
@@ -257,7 +257,7 @@ def log_proc_count(change: str, active_games: set[str]) -> None:
     logger.info(f"{symbol} Process {change}. Count: {len(active_games)}. IDs: {active_games or None}")
 
 
-def playstrategy_bot_main(li: lichess.Lichess,
+def playstrategy_bot_main(li: playstrategy.PlayStrategy,
                      user_profile: USER_PROFILE_TYPE,
                      config: Configuration,
                      challenge_queue: MULTIPROCESSING_LIST_TYPE,
@@ -412,7 +412,7 @@ def start_low_time_games(low_time_games: list[EVENT_GETATTR_GAME_TYPE], active_g
         start_game_thread(active_games, game_id, play_game_args, pool)
 
 
-def accept_challenges(li: lichess.Lichess, challenge_queue: MULTIPROCESSING_LIST_TYPE, active_games: set[str],
+def accept_challenges(li: playstrategy.PlayStrategy, challenge_queue: MULTIPROCESSING_LIST_TYPE, active_games: set[str],
                       max_games: int) -> None:
     """Accept a challenge."""
     while len(active_games) < max_games and challenge_queue:
@@ -430,7 +430,7 @@ def accept_challenges(li: lichess.Lichess, challenge_queue: MULTIPROCESSING_LIST
                 logger.info(f"Skip missing {chlng}")
 
 
-def check_online_status(li: lichess.Lichess, user_profile: USER_PROFILE_TYPE, last_check_online_time: Timer) -> None:
+def check_online_status(li: playstrategy.PlayStrategy, user_profile: USER_PROFILE_TYPE, last_check_online_time: Timer) -> None:
     """Check if playstrategy.org thinks the bot is online or not. If it isn't, we restart it."""
     global restart
 
@@ -457,7 +457,7 @@ def sort_challenges(challenge_queue: MULTIPROCESSING_LIST_TYPE, challenge_config
         challenge_queue[:] = list_c
 
 
-def game_is_active(li: lichess.Lichess, game_id: str) -> bool:
+def game_is_active(li: playstrategy.PlayStrategy, game_id: str) -> bool:
     """Determine if a game is still being played."""
     return game_id in (ongoing_game["gameId"] for ongoing_game in li.get_ongoing_games())
 
@@ -526,7 +526,7 @@ def enough_time_to_queue(event: EVENT_TYPE, config: Configuration) -> bool:
     return not game["isMyTurn"] or game.get("secondsLeft", math.inf) > minimum_time
 
 
-def handle_challenge(event: EVENT_TYPE, li: lichess.Lichess, challenge_queue: MULTIPROCESSING_LIST_TYPE,
+def handle_challenge(event: EVENT_TYPE, li: playstrategy.PlayStrategy, challenge_queue: MULTIPROCESSING_LIST_TYPE,
                      challenge_config: Configuration, user_profile: USER_PROFILE_TYPE,
                      matchmaker: matchmaking.Matchmaking, recent_bot_challenges: defaultdict[str, list[Timer]]) -> None:
     """Handle incoming challenges. It either accepts, declines, or queues them to accept later."""
@@ -544,7 +544,7 @@ def handle_challenge(event: EVENT_TYPE, li: lichess.Lichess, challenge_queue: MU
 
 @backoff.on_exception(backoff.expo, BaseException, max_time=600, giveup=playstrategy.is_final,  # type: ignore[arg-type]
                       on_backoff=playstrategy.backoff_handler)
-def play_game(li: lichess.Lichess,
+def play_game(li: playstrategy.PlayStrategy,
               game_id: str,
               control_queue: CONTROL_QUEUE_TYPE,
               user_profile: USER_PROFILE_TYPE,
@@ -731,7 +731,7 @@ def is_game_over(game: model.Game) -> bool:
     return status != "started"
 
 
-def should_exit_game(board: chess.Board, game: model.Game, prior_game: Optional[model.Game], li: lichess.Lichess,
+def should_exit_game(board: chess.Board, game: model.Game, prior_game: Optional[model.Game], li: playstrategy.PlayStrategy,
                      is_correspondence: bool) -> bool:
     """Whether we should exit a game."""
     if (is_correspondence
@@ -819,7 +819,7 @@ def tell_user_game_result(game: model.Game, board: chess.Board) -> None:
         logger.info(f"Game ended by {termination}")
 
 
-def try_get_pgn_game_record(li: lichess.Lichess, config: Configuration, game: model.Game, board: chess.Board,
+def try_get_pgn_game_record(li: playstrategy.PlayStrategy, config: Configuration, game: model.Game, board: chess.Board,
                             engine: engine_wrapper.EngineWrapper) -> str:
     """
     Call `print_pgn_game_record` to write the game to a PGN file and handle errors raised by it.
@@ -837,7 +837,7 @@ def try_get_pgn_game_record(li: lichess.Lichess, config: Configuration, game: mo
         return ""
 
 
-def pgn_game_record(li: lichess.Lichess, config: Configuration, game: model.Game, board: chess.Board,
+def pgn_game_record(li: playstrategy.PlayStrategy, config: Configuration, game: model.Game, board: chess.Board,
                     engine: engine_wrapper.EngineWrapper) -> str:
     """
     Return the text of the game's PGN.
@@ -1033,7 +1033,7 @@ def start_playstrategy_bot() -> None:
 
     max_retries = CONFIG.engine.online_moves.max_retries
     check_python_version()
-    li = lichess.Lichess(CONFIG.token, CONFIG.url, __version__, logging_level, max_retries)
+    li = playstrategy.PlayStrategy(CONFIG.token, CONFIG.url, __version__, logging_level, max_retries)
 
     user_profile = li.get_profile()
     username = user_profile["username"]

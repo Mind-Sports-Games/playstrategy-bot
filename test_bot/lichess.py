@@ -126,7 +126,7 @@ class PlayStrategy:
     """Imitate communication with playstrategy.org."""
 
     def __init__(self, token: str, url: str, version: str) -> None:
-        """Has the same parameters as `lichess.Lichess` to be able to be used in its placed without any modification."""
+        """Has the same parameters as `playstrategy.PlayStrategy` to be able to be used in its placed without any modification."""
         self.baseUrl = url
         self.game_accepted = False
         self.moves: list[chess.engine.PlayResult] = []
